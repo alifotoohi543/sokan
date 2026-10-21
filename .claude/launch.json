@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sokan",
+      "runtimeExecutable": "C:/Hackaton/liara-copilot/.venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--app-dir", "C:/Hackaton/liara-copilot/backend", "--port", "8010", "--host", "127.0.0.1"],
+      "port": 8010
+    },
+    {
+      "name": "sokan-mock",
+      "runtimeExecutable": "C:/Hackaton/liara-copilot/scripts/run_mock.cmd",
+      "runtimeArgs": [],
+      "port": 8011
+    }
+  ]
+}

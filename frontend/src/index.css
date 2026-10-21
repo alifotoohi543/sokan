@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@import "@fontsource-variable/vazirmatn";
+
+@theme {
+  --font-sans: "Vazirmatn Variable", Tahoma, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  /* Dark console palette in the spirit of Liara's panel: deep slate surfaces + teal accent */
+  --color-bg: #0b0f14;
+  --color-panel: #11161d;
+  --color-panel-2: #161d27;
+  --color-panel-3: #1c2531;
+  --color-line: #253041;
+  --color-line-2: #2f3b4e;
+  --color-ink: #e6edf3;
+  --color-ink-2: #aab6c3;
+  --color-ink-3: #75828f;
+  --color-accent: #2dd4bf;
+  --color-accent-strong: #14b8a6;
+  --color-accent-soft: #0f2e2c;
+  --color-ai: #8b9cff;
+  --color-ai-soft: #1b2040;
+  /* status — reserved, always shipped with icon + label */
+  --color-ok: #3fb950;
+  --color-ok-soft: #10261a;
+  --color-warn: #e3a72f;
+  --color-warn-soft: #2a2110;
+  --color-crit: #f8645a;
+  --color-crit-soft: #2d1416;
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 8px 24px rgb(0 0 0 / 0.25);
+  --animate-fade-up: fade-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01";
+}
+::selection { background: #2dd4bf44; }
+* { scrollbar-width: thin; scrollbar-color: #2f3b4e transparent; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+.num { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
