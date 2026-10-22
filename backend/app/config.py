@@ -35,7 +35,7 @@ MONITOR_INTERVAL_S = float(os.getenv("MONITOR_INTERVAL_S", "60"))
 MONITOR_ENABLED = os.getenv("MONITOR_ENABLED", "1") == "1"
 RAM_WARN_RATIO = 0.85
 CPU_WARN_RATIO = 0.90
-SLOW_RESPONSE_S = 2.5
+SLOW_RESPONSE_S = float(os.getenv("SLOW_RESPONSE_S", "5"))
 
 
 def read_secret(env: str, path: Path) -> str | None:

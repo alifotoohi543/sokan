@@ -61,20 +61,23 @@ async def probe(app: str, path: str = "/", timeout: float = 15) -> dict:
     try:
         async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as c:
             r = await c.get(url)
-        return {"url": url, "ok": r.status_code < 500, "status": r.status_code,
+        # Liara's edge serves its own "Application Error" page (404/503) while a container is not routed yet.
+        edge = "Liara | Application Error" in r.text[:2000]
+        return {"url": url, "ok": r.status_code < 500 and not edge, "status": r.status_code, "edge_error": edge,
                 "latency_s": round(time.perf_counter() - t, 2), "body": r.text[:300]}
     except httpx.HTTPError as e:
         return {"url": url, "ok": False, "status": None, "latency_s": round(time.perf_counter() - t, 2),
                 "error": type(e).__name__}
 
 
-async def probe_until_up(app: str, timeout: float = 90) -> dict:
-    """After a release the edge returns 502/503/504 while the container warms up — wait that out."""
+async def probe_until_up(app: str, timeout: float = 150) -> dict:
+    """After a release the edge answers 404/502/503/504 (its own error page) until the container is routed — wait that out."""
     t0 = time.time()
     while True:
         await asyncio.sleep(config.POLL_S)
         pr = await probe(app)
-        if pr.get("status") not in (None, 502, 503, 504) or time.time() - t0 > timeout:
+        warming = pr.get("status") in (None, 502, 503, 504) or pr.get("edge_error")
+        if not warming or time.time() - t0 > timeout:
             pr["waited_s"] = round(time.time() - t0)
             return pr
 

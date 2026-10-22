@@ -42,7 +42,7 @@ export function AppPanel({ app, catalog, onAsk }: { app: string; catalog: Record
       {!st && !err ? <Loader2 size={18} className="animate-spin text-ink-3" /> : st && (
         <div className="grid grid-cols-2 gap-2">
           <Stat label="پاسخ سایت" value={http.status ? `HTTP ${http.status}` : 'بدون پاسخ'} sub={http.latency_s != null ? `${n1(http.latency_s)} ثانیه` : ''}
-            tone={!http.status || http.status >= 500 ? 'crit' : http.latency_s > 2.5 ? 'warn' : 'ok'} />
+            tone={!http.status || http.status >= 500 ? 'crit' : http.latency_s > 5 ? 'warn' : 'ok'} />
           <Stat label="دسترس‌پذیری (۱ ساعت)" value={uptime == null ? '—' : `${n(uptime * 100)}٪`} sub={`${n(h?.history?.length)} بررسی`}
             tone={uptime == null ? 'default' : uptime > 0.98 ? 'ok' : uptime > 0.9 ? 'warn' : 'crit'} />
           <Stat label="پلن" value={<span className="ltr">{st.plan}</span>} sub={st.limits ? `${n1(st.limits.ram_gb)}GB · ${n1(st.limits.cpu)} CPU` : ''} />
@@ -52,7 +52,7 @@ export function AppPanel({ app, catalog, onAsk }: { app: string; catalog: Record
       <UsageChart title="RAM — ۶۰ دقیقه‌ی اخیر" unit="MB" points={m?.series?.mem_mb || []} limit={m?.limits?.ram_gb ? m.limits.ram_gb * 1024 : null} />
       <UsageChart title="CPU — ۶۰ دقیقه‌ی اخیر" unit="هسته" points={m?.series?.cpu || []} limit={m?.limits?.cpu} />
       <UsageChart title="زمان پاسخ سایت (پایش سکان)" unit="ثانیه"
-        points={(h?.history || []).filter((x: any) => x.latency != null).map((x: any) => [x.ts, x.latency])} limit={2.5} height={90} />
+        points={(h?.history || []).filter((x: any) => x.latency != null).map((x: any) => [x.ts, x.latency])} limit={5} height={90} />
 
       <section className="rounded-xl border border-line bg-panel-2 p-3">
         <h3 className="flex items-center gap-1.5 text-xs font-semibold"><Zap size={13} className="text-ai" />خودکارسازی (تأیید دائمی)</h3>

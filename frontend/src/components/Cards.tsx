@@ -158,7 +158,7 @@ function AppStatus({ d }: { d: any }) {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Stat label="وضعیت" value={d.scale === 0 ? 'خاموش' : d.status || '—'} tone={d.scale === 0 ? 'warn' : 'ok'} />
         <Stat label="پاسخ سایت" value={http.status ? `HTTP ${http.status}` : 'بدون پاسخ'} sub={http.latency_s != null ? `${n1(http.latency_s)} ثانیه` : ''}
-          tone={!http.status || http.status >= 500 ? 'crit' : http.latency_s > 2.5 ? 'warn' : 'ok'} />
+          tone={!http.status || http.status >= 500 ? 'crit' : http.latency_s > 5 ? 'warn' : 'ok'} />
         <Stat label="پلن" value={d.plan || '—'} sub={d.limits ? `${n1(d.limits.ram_gb)}GB RAM · ${n1(d.limits.cpu)} CPU` : ''} />
         <Stat label="پلتفرم" value={PLATFORM_FA[d.platform] || d.platform || '—'} sub={`${n(d.env_keys?.length)} متغیر محیطی`} />
       </div>

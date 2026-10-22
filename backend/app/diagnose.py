@@ -262,7 +262,7 @@ def analyze(ev: dict[str, Any]) -> dict[str, Any]:
 
     # --- external probe -------------------------------------------------------------------
     http = ev.get("http") or {}
-    if rel and http.get("status") in (502, 503, 504):
+    if rel and (http.get("status") in (502, 503, 504) or http.get("edge_error")):
         fin = rel[0].get("finishedAt") or rel[0].get("createdAt")
         try:
             age = time.time() - datetime.fromisoformat(str(fin).replace("Z", "+00:00")).timestamp()

@@ -134,9 +134,21 @@ async def api_capabilities() -> dict:
 
 
 # ============================================================================ sensitive executors
-async def _wait_running(app: str, timeout: float = 120) -> dict:
-    """Wait until the site is past its warm-up (no 502/503/504); return the last probe."""
-    return await deploy_mod.probe_until_up(app, timeout)
+async def _wait_running(app: str, timeout: float = 150) -> dict:
+    """Poll until the site answers healthily or the timeout expires; return the last probe.
+
+    After a restart/env change Liara rolls containers: the OLD instance keeps serving (e.g. its 500s) for a while,
+    so the first non-5xx answer — not the first answer — is what proves the change worked.
+    """
+    t0 = time.time()
+    pr: dict = {}
+    while time.time() - t0 < timeout:
+        await asyncio.sleep(config.POLL_S)
+        pr = await deploy_mod.probe(app)
+        if pr.get("ok"):
+            break
+    pr["waited_s"] = round(time.time() - t0)
+    return pr
 
 
 async def _ram_mb(app: str) -> float | None:
@@ -192,9 +204,14 @@ async def ex_set_env(app: str, variables: dict[str, str], remove: list[str] | No
     await lc.update_envs(app, [{"key": k, "value": v} for k, v in merged.items()])
     yield {"type": "progress", "label": "لیارا برنامه را با تنظیمات جدید ری‌استارت می‌کند..."}
     pr = await _wait_running(app, 150)
-    # verify: the missing-variable error must not re-appear after the change
-    await asyncio.sleep(config.POLL_S)
-    new_logs = await diag._safe(lc.logs(app, int(started)), [])
+    healthy_at = time.time()
+    # verify: the missing-variable error must not re-appear once the new container serves. Errors logged by the
+    # old container during the rollover are expected, so only lines after the first healthy answer count.
+    yield {"type": "progress", "label": "بررسی لاگ‌های جدید برای تکرار خطا"}
+    if pr.get("ok"):
+        await deploy_mod.probe(app)  # one more real request against the new container
+    await asyncio.sleep(max(config.POLL_S, 0.01) * 2)
+    new_logs = await diag._safe(lc.logs(app, int(healthy_at if pr.get("ok") else started)), [])
     still = [l["line"][:200] for l in new_logs if any(k in l["line"] for k in variables)
              and any(w in l["line"] for w in ("KeyError", "not set", "undefined", "missing", "Missing"))]
     yield {"type": "done", "ok": bool(pr.get("ok")) and not still, "probe": pr, "errors_after": still[:3]}
